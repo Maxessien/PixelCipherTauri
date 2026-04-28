@@ -1,5 +1,8 @@
 use image::{image_dimensions, save_buffer_with_format, ExtendedColorType, ImageFormat};
-use std::path::PathBuf;
+use jwalk::WalkDir;
+use serde::Serialize;
+use std::{path::PathBuf};
+use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
 use crate::engine;
@@ -19,9 +22,9 @@ pub async fn encode_image(
         let file_path = match f {
             Some(p) => match p.into_path() {
                 Ok(fp) => fp,
-                Err(_) => return ()
+                Err(_) => return (),
             },
-            None => return ()
+            None => return (),
         };
         match save_buffer_with_format(
             file_path,
@@ -32,16 +35,73 @@ pub async fn encode_image(
             ImageFormat::Png,
         ) {
             Ok(_) => return (),
-            Err(_) => return ()
+            Err(_) => return (),
         };
     });
     Ok(())
 }
 
+pub const IMAGE_EXTS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp"];
 
-// #[serde()]
+#[cfg(target_os = "android")]
+fn get_dirs(_app: &tauri::AppHandle) -> [PathBuf; 2] {
+    let dirs = [
+        PathBuf::from("/storage/emulated/0/Download"),
+        PathBuf::from("/storage/emulated/0/Pictures"),
+    ];
+    dirs
+}
+
+#[cfg(not(target_os = "android"))]
+fn get_dirs(app: &tauri::AppHandle) -> [PathBuf; 2] {
+    let path = app.path();
+    let home = path.home_dir().unwrap_or_else(|_| PathBuf::from("."));
+    [
+        path.download_dir()
+            .unwrap_or_else(|_| home.join("Downloads")),
+        path.picture_dir().unwrap_or_else(|_| home.join("Pictures")),
+    ]
+}
+
+#[derive(Serialize)]
+pub struct Images {
+    pub file_name: String,
+    pub file_path: PathBuf,
+}
+
+fn walkdir(path: PathBuf) -> Result<Vec<Images>, ()> {
+    let mut images: Vec<Images> = Vec::new();
+    let entries = WalkDir::new(path).sort(true).into_iter();
+    for entryres in entries {
+        let entry = match entryres {
+            Ok(e) => e,
+            Err(_) => return Err(()),
+        };
+        if let Some(str) = entry.path().extension() {
+            if let Some(inn_str) = str.to_str() {
+                let lower = inn_str.to_ascii_lowercase();
+                if IMAGE_EXTS.contains(&lower.as_str()) {
+                    let image = Images {
+                        file_name: entry.file_name.to_string_lossy().into_owned(),
+                        file_path: entry.path(),
+                    };
+                    images.push(image);
+                };
+            };
+        };
+    }
+    Ok(images)
+}
 
 #[tauri::command]
-async fn list_images(app: tauri::AppHandle) -> Result<(), String> {
-  Ok(())
+pub async fn list_images(app: tauri::AppHandle) -> Result<Vec<Images>, String> {
+    let mut images: Vec<Images> = Vec::new();
+    let dirs = get_dirs(&app);
+
+    for dir in dirs {
+        if let Ok(image) = walkdir(dir) {
+            images.extend(image);
+        };
+    }
+    Ok(images)
 }
