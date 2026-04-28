@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
-import { BrowserRouter, Route, Routes, useNavigation } from "react-router";
+import { Route, Routes, useNavigation, Outlet } from "react-router";
 import "./App.css";
+import AppLayout from "./components/layouts/AppLayout";
 import Decode from "./components/tabs/decode/Decode";
 import Encode from "./components/tabs/encode/Encode";
 import Home from "./components/tabs/home/Home";
@@ -16,13 +17,22 @@ const AppLoader = () => {
     <>
       <AnimatePresence>
         {isNavigating && (
-          <motion.div className="h-3 fixed z-999 top-0 left-0 bg-(--main-primary)" 
+          <motion.div
+            className="h-3 fixed z-999 top-0 left-0 bg-(--main-primary)"
             initial={{ width: "0%" }}
             animate={{
-              width: ["0%", "40%", "75%", "90%"], 
-              transition: { duration: 1.5, times: [0, 0.3, 0.7, 1], ease: "easeOut" }
+              width: ["0%", "40%", "75%", "90%"],
+              transition: {
+                duration: 1.5,
+                times: [0, 0.3, 0.7, 1],
+                ease: "easeOut",
+              },
             }}
-            exit={{ width: "100%", opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }}
+            exit={{
+              width: "100%",
+              opacity: 0,
+              transition: { duration: 0.3, ease: "easeIn" },
+            }}
           ></motion.div>
         )}
       </AnimatePresence>
@@ -52,15 +62,10 @@ function App() {
 
   return (
     <>
-    <AppLoader />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/encode" element={<Encode />} />
-          <Route path="/decode" element={<Decode />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </BrowserRouter>
+      <AppLoader />
+      <AppLayout>
+	<Outlet />
+      </AppLayout>
     </>
   );
 }

@@ -13,7 +13,7 @@ pub async fn encode_image(
     app: tauri::AppHandle,
     path: PathBuf,
     message: String,
-) -> Result<(), String> {
+) -> Result<String, String> {
     let img_buf = engine::encode(&path, message)?;
     let (width, height) = match image_dimensions(&path) {
         Ok(dim) => dim,
@@ -32,7 +32,7 @@ pub async fn encode_image(
                         ExtendedColorType::Rgb8,
                         ImageFormat::Png,
                     ) {
-                        Ok(_) => Ok(()),
+                        Ok(_) => Ok("File saved".to_string()),
                         Err(_) => Err("Failed to save image format to disk".to_string()),
                     }
                 },

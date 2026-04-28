@@ -15,7 +15,7 @@ export interface ButtonType {
 
 const interfaces = {
   primary:
-    "text-(--text-primary-light) bg-(--main-secondary-light) hover:bg-(--main-secondary)",
+    "text-(--text-primary-light) bg-[linear-gradient(to_right,var(--main-primary),var(--main-primary-light))] hover:filter hover:brightness-125",
   secondary:
     "bg-(--main-primary) shadow-[0px_0.4px_10px_-7px_black] text-(--text-primary-light) hover:bg-(--main-primary-light)",
   tertiary:
