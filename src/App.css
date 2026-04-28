@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --main-primary: #6366f1;
+  --main-primary-light: #8b5cf6; /* Purple/Blue accent matching the active app sections */
+  --main-primary-lighter: #a855f7;
+  --main-secondary: #06080f; /* Deep dark blue background for sidebar/topbar */
+  --main-secondary-light: #0b0f19; /* Main content background */
+  --main-tertiary: #111827; /* Background for list items/cards/search */
+  --main-tertiary-light: #1e293b; /* Borders and subtle dividers */
+  --text-primary: #ffffff; /* Bright white for primary text */
+  --text-primary-light: #f8fafc;
+  --text-errors: #ef4444;
+  --text-secondary: #94a3b8; /* Cool gray text for subtitles */
+  --text-secondary-light: #64748b;
+}
+
+
+body {
+    background: var(--main-secondary-light);
+    color: var(--text-primary);
+    height: 100vh;
+    min-height: 33.75rem;
+}
