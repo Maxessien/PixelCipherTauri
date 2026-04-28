@@ -9,71 +9,74 @@ fn get_image_bytes(path: &PathBuf) -> Result<Vec<u8>, String> {
     Ok(file.to_rgb8().into_raw())
 }
 
-fn convert_str_to_bytes(str: String) -> String {
-    let mut full_str = String::new();
-    for byte in str.as_bytes() {
-        full_str += &format!("{:08b}", byte);
-    }
-    full_str
-}
 pub fn encode(image_path: &PathBuf, message: String) -> Result<Vec<u8>, String> {
     let mut img_bytes = get_image_bytes(image_path)?;
-    let message_len_bytes = format!("{:032b}", message.len());
-    let str_bytes = convert_str_to_bytes("MAXSTEG".to_string())
-        + &message_len_bytes
-        + &convert_str_to_bytes(message);
-    if str_bytes.len() > img_bytes.len() {
+    let message_len_bytes = (message.len() as u32).to_be_bytes();
+    let mut str_bytes = Vec::new();
+    str_bytes.extend_from_slice("MAXSTEG".as_bytes());
+    str_bytes.extend_from_slice(&message_len_bytes);
+    str_bytes.extend_from_slice(&message.as_bytes());
+
+    let total_bits_needed = str_bytes.len() * 8;
+
+    if total_bits_needed > img_bytes.len() {
         return Err("Message too large for image".to_string());
     }
 
-    for (index, byte) in str_bytes.chars().enumerate() {
-        let mut byte_str: Vec<char> = format!("{:08b}", img_bytes[index]).chars().collect();
-        let last_idx = byte_str.len() - 1;
-        byte_str[last_idx] = byte;
-        let pixel = u8::from_str_radix(String::from_iter(byte_str).as_str(), 2).unwrap();
-        img_bytes[index] = pixel;
+    for idx in 0..total_bits_needed {
+        let curr_byte_idx = idx / 8;
+        let offset = 7 - (idx % 8);
+        let byte = (str_bytes[curr_byte_idx] >> offset) & 1;
+        img_bytes[idx] = (img_bytes[idx] & 0xFE) | byte as u8
     }
+
     Ok(img_bytes)
 }
 
-fn get_lsb(bytes: Vec<u8>) -> String {
-    let mut lsb = String::new();
-    for byte in bytes {
-        let byte_str: Vec<char> = format!("{:b}", byte).chars().collect();
-        let last_idx = byte_str.len() - 1;
-        lsb += byte_str[last_idx].to_string().as_str();
+fn get_lsb(bytes: Vec<u8>) -> Vec<u8> {
+    let mut lsb = Vec::new();
+    let mut current_byte: u8 = 0;
+    for (idx, byte) in bytes.iter().enumerate() {
+        let bit = byte & 1;
+        current_byte = (current_byte << 1) | bit;
+        if idx % 8 == 7 {
+            lsb.push(current_byte);
+            current_byte = 0
+        };
     }
     lsb
 }
 
-fn convert_bytes_to_str(bytes: &str) -> String {
-    let mut str_vecs: Vec<u8> = Vec::new();
-    for i in 0..(bytes.len() / 8) {
-        let integer = u8::from_str_radix(&bytes[(i * 8)..(i * 8) + 8], 2).unwrap();
-        str_vecs.push(integer);
+fn convert_bytes_to_str(bytes: Vec<u8>) -> Result<String, String> {
+    match String::from_utf8(bytes) {
+        Ok(str) => Ok(str),
+        Err(_) => Err("Failed to extract string".to_string()),
     }
-    String::from_utf8(str_vecs).unwrap()
 }
 
 pub fn decode(image_path: PathBuf) -> Result<String, String> {
     let img_bytes = get_image_bytes(&image_path)?;
-    let magic_len = convert_str_to_bytes("MAXSTEG".to_string()).len();
+    let magic_len = "MAXSTEG".to_string().as_bytes().len() * 8;
     let magic_lsb = get_lsb(img_bytes[..magic_len].to_vec());
 
-    if convert_bytes_to_str(&magic_lsb) != "MAXSTEG".to_string() {
+    if convert_bytes_to_str(magic_lsb)? != "MAXSTEG".to_string() {
         return Err("unrecognised encoding".to_string());
     };
 
     let message_length_lsb = get_lsb(img_bytes[magic_len..magic_len + 32].to_vec());
-    let message_length = u32::from_str_radix(&message_length_lsb, 2)
-        .map_err(|_| "Invalid message length encoding".to_string())?;
-    
-    let required_len = magic_len + 32 + (message_length as usize);
+    let message_length = u32::from_be_bytes([
+        message_length_lsb[0],
+        message_length_lsb[1],
+        message_length_lsb[2],
+        message_length_lsb[3],
+    ]);
+
+    let required_len = magic_len + 32 + ((message_length * 8) as usize);
     if required_len > img_bytes.len() {
         return Err("Message length exceeds image capacity".to_string());
     }
     let message_lsb =
-        get_lsb(img_bytes[magic_len + 32..magic_len + 32 + message_length as usize].to_vec());
+        get_lsb(img_bytes[magic_len + 32..magic_len + 32 + (message_length * 8) as usize].to_vec());
 
-    Ok(convert_bytes_to_str(&message_lsb))
+    Ok(convert_bytes_to_str(message_lsb)?)
 }

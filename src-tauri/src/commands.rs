@@ -4,8 +4,9 @@ use serde::Serialize;
 use std::{path::PathBuf};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
-
 use crate::engine;
+use tokio::sync::oneshot;
+
 
 #[tauri::command]
 pub async fn encode_image(
@@ -18,27 +19,34 @@ pub async fn encode_image(
         Ok(dim) => dim,
         Err(_) => return Err("Failed to get image dimensions".to_string()),
     };
-    app.dialog().file().pick_folder(move |f| {
-        let file_path = match f {
+    let (tx, rx) = oneshot::channel();
+    app.dialog().file().pick_file(move |f| {
+        let result = match f {
             Some(p) => match p.into_path() {
-                Ok(fp) => fp,
-                Err(_) => return (),
+                Ok(file_path) => {
+                    match save_buffer_with_format(
+                        file_path,
+                        &img_buf[..],
+                        width,
+                        height,
+                        ExtendedColorType::Rgb8,
+                        ImageFormat::Png,
+                    ) {
+                        Ok(_) => Ok(()),
+                        Err(_) => Err("Failed to save image format to disk".to_string()),
+                    }
+                },
+                Err(_) => Err("Invalid file path selected".to_string()),
             },
-            None => return (),
+            None => Err("User cancelled file selection".to_string()),
         };
-        match save_buffer_with_format(
-            file_path,
-            &img_buf[..],
-            width,
-            height,
-            ExtendedColorType::Rgb8,
-            ImageFormat::Png,
-        ) {
-            Ok(_) => return (),
-            Err(_) => return (),
-        };
+
+        let _ = tx.send(result);
     });
-    Ok(())
+    match rx.await {
+        Ok(dialog_result) => dialog_result,
+        Err(_) => Err("Internal channel error waiting for dialog".to_string()),
+    }
 }
 
 pub const IMAGE_EXTS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp"];
@@ -75,7 +83,7 @@ fn walkdir(path: PathBuf) -> Result<Vec<Images>, ()> {
     for entryres in entries {
         let entry = match entryres {
             Ok(e) => e,
-            Err(_) => return Err(()),
+            Err(_) => continue,
         };
         if let Some(str) = entry.path().extension() {
             if let Some(inn_str) = str.to_str() {

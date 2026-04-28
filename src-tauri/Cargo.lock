@@ -4332,6 +4332,7 @@ dependencies = [
  "tauri-plugin-android-fs",
  "tauri-plugin-dialog",
  "tauri-plugin-opener",
+ "tokio",
 ]
 
 [[package]]

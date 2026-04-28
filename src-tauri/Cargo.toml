@@ -26,4 +26,5 @@ image = "0.25.10"
 jwalk = "0.8.1"
 tauri-plugin-android-fs = "28.1.0"
 tauri-plugin-dialog = "2.7.0"
+tokio = "1.52.1"
 
