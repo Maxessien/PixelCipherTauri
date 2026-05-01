@@ -1,7 +1,7 @@
 use image::{image_dimensions, save_buffer_with_format, ExtendedColorType, ImageFormat};
 use jwalk::WalkDir;
 use serde::Serialize;
-use std::{os::windows::fs::MetadataExt, path::PathBuf};
+use std::{io::Error, os::windows::fs::MetadataExt, path::PathBuf, time::SystemTime};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 use crate::engine;
@@ -76,9 +76,10 @@ pub struct Images {
     pub file_name: String,
     pub file_path: PathBuf,
     pub file_size: u64,
+    pub last_modified: SystemTime
 }
 
-fn walkdir(path: PathBuf) -> Result<Vec<Images>, std::io::Error> {
+fn walkdir(path: PathBuf) -> Result<Vec<Images>, Error> {
     let mut images: Vec<Images> = Vec::new();
     let entries = WalkDir::new(path).sort(true).into_iter();
     for entryres in entries {
@@ -93,7 +94,8 @@ fn walkdir(path: PathBuf) -> Result<Vec<Images>, std::io::Error> {
                     let image = Images {
                         file_name: entry.file_name.to_string_lossy().into_owned(),
                         file_path: entry.path(),
-                        file_size: entry.metadata()?.file_size()
+                        file_size: entry.metadata()?.file_size(),
+                        last_modified: entry.metadata()?.modified()?
                     };
                     images.push(image);
                 };
