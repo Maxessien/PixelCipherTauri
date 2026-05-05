@@ -22,4 +22,9 @@ const encodeImage = (path: string, message: string) =>
     async () => await invoke<string>("encode_image", { path, message }),
   );
 
-export { getImageList, handleAsync, encodeImage };
+const decodeImage = (path: string) =>
+  handleAsync(
+    async () => await invoke<string>("decode_image", { path }),
+  );
+
+export { getImageList, handleAsync, encodeImage, decodeImage };

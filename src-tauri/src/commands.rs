@@ -49,6 +49,12 @@ pub async fn encode_image(
     }
 }
 
+#[tauri::command]
+pub async fn decode_image(path: PathBuf)-> Result<String, String>{
+    let message = engine::decode(path)?;
+    Ok(message)
+}
+
 pub const IMAGE_EXTS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp"];
 
 #[cfg(target_os = "android")]

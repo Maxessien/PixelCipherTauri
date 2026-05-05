@@ -21,6 +21,7 @@ body {
     color: var(--text-primary);
     height: 100vh;
     min-height: 33.75rem;
+    overflow-x: hidden;
 }
 
 body #root{

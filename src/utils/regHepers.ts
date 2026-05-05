@@ -2,7 +2,8 @@ import { Image, ImagesSort } from "../types";
 
 const applyFilters = (data: Image[], search: string, sort: ImagesSort) => {
   const hasSearch = search.trim().length > 0;
-  const filtered = data.sort((a, b) => {
+  const dataCopy = [...data]
+  const filtered = dataCopy.sort((a, b) => {
     if (sort === "alpha" || sort === "de_alpha")
       return a.file_name.localeCompare(b.file_name);
     else if (sort === "newest" || sort === "oldest")
@@ -18,4 +19,22 @@ const applyFilters = (data: Image[], search: string, sort: ImagesSort) => {
   return filtered;
 };
 
-export { applyFilters };
+const formatFileSize = (bytes: number, locale = 'en-US')=>{
+  if (bytes === 0) return '0 B';
+  
+  const units = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte'];
+  
+  // Calculate which unit power we are at (1024 based)
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const value = bytes / Math.pow(1024, i);
+
+  return new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: units[i],
+    unitDisplay: 'short',
+    maximumFractionDigits: 1
+  }).format(value);
+}
+
+export { applyFilters, formatFileSize };
+

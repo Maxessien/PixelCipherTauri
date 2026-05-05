@@ -9,7 +9,8 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::encode_image,
-            commands::list_images
+            commands::list_images,
+            commands::decode_image
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

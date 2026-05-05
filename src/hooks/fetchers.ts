@@ -4,12 +4,12 @@ import {
   UseMutationOptions,
   useQuery,
 } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setFiles } from "../store/slices/imagesSlice";
 import { EncodeMutation, Image } from "../types";
-import { encodeImage, getImageList } from "../utils/invokers";
+import { decodeImage, encodeImage, getImageList } from "../utils/invokers";
 import { applyFilters } from "../utils/regHepers";
 
 const useGetImages = (
@@ -51,4 +51,22 @@ const useEncodeImage = (
   return mutation;
 };
 
-export { useEncodeImage, useGetImages };
+const useDecodeImage = ()=>{
+  const [decoded, setDecoded] = useState("")
+
+  const mutation = useMutation({
+    mutationFn: decodeImage,
+    onSuccess: (data)=>{
+      setDecoded(data)
+      toast.success("Message decoded")
+    },
+    onError: ()=>{
+      setDecoded("")
+      toast.error("Couldn't decode message, try again later")
+    }
+  })
+
+  return {mutation, decoded}
+}
+
+export { useEncodeImage, useGetImages, useDecodeImage };

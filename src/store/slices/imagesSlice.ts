@@ -15,7 +15,7 @@ const imageSlice = createSlice({
         setFiles: (state, {payload}: PayloadAction<Image[]>)=>{
             state.files = payload
         },
-        setSelected: (state, {payload}: PayloadAction<Image>)=>{
+        setSelected: (state, {payload}: PayloadAction<Image | null>)=>{
             state.selected = payload
         },
         setSearchQuery: (state, {payload}: PayloadAction<string>)=>{

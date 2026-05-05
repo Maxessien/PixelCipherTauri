@@ -1,8 +1,7 @@
 import { FaSearch } from "react-icons/fa";
-import { ImagesSort } from "../../../types";
-import Button from "../../reusable/Button";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setSearchQuery, setSort } from "../../../store/slices/imagesSlice";
+import { ImagesSort } from "../../../types";
 
 const HomeHeader = () => {
     const {search, sort} = useAppSelector(state=>state.images)
@@ -18,15 +17,13 @@ const HomeHeader = () => {
             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
             value={search}
             type="text"
-            className="w-full text-lg font-medium py-2 pl-7 pr-2 shadow-[inset_0px_0px_10px_-6px_var(--text-primary-light)] rounded-md"
+            className="w-full text-lg font-medium py-1 pl-9 pr-2 shadow-[inset_0px_0px_10px_-6px_var(--text-primary-light)] rounded-md"
           />
-          <Button
-            color="tertiary"
-            usePredefinedSize={false}
-            className="p-3 text-lg font-medium absolute -translate-y-1/2 top-1/2 left-2"
+          <button
+            className="p-2 text-base font-medium absolute -translate-y-1/2 top-1/2 left-1 sm:left-2"
           >
             <FaSearch />
-          </Button>
+          </button>
         </div>
         <select
           onChange={(e) => {
