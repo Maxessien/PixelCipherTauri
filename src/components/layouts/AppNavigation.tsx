@@ -1,6 +1,6 @@
 import { JSX } from "react";
+import { FaCog, FaImage } from "react-icons/fa";
 import { NavLink } from "react-router";
-import { FaCog, FaImage } from "react-icons/fa"
 
 const NavItems = ({
   icon,
@@ -47,3 +47,4 @@ const AppNavigationMobile = () => {
 };
 
 export { AppNavigationDeskTop, AppNavigationMobile };
+
