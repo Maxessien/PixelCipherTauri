@@ -8,6 +8,7 @@ export interface Image {
 export interface EncodeMutation {
   path: string;
   message: string;
+  save_name: string;
 }
 
 export type ImagesSort =

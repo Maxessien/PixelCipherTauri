@@ -3,7 +3,7 @@ use jwalk::WalkDir;
 use serde::Serialize;
 use std::{io::Error, os::windows::fs::MetadataExt, path::PathBuf, time::SystemTime};
 use tauri::Manager;
-use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{DialogExt, PickerMode};
 use crate::engine;
 use tokio::sync::oneshot;
 
@@ -13,6 +13,7 @@ pub async fn encode_image(
     app: tauri::AppHandle,
     path: PathBuf,
     message: String,
+    save_name: String
 ) -> Result<String, String> {
     let img_buf = engine::encode(&path, message)?;
     let (width, height) = match image_dimensions(&path) {
@@ -20,7 +21,7 @@ pub async fn encode_image(
         Err(_) => return Err("Failed to get image dimensions".to_string()),
     };
     let (tx, rx) = oneshot::channel();
-    app.dialog().file().pick_file(move |f| {
+    app.dialog().file().add_filter("Image File", IMAGE_EXTS).set_file_name(save_name).set_picker_mode(PickerMode::Image).save_file(move |f| {
         let result = match f {
             Some(p) => match p.into_path() {
                 Ok(file_path) => {

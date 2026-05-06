@@ -30,7 +30,7 @@ const Home = () => {
               return (
                 <div
                   onClick={() => isSelected(file_name, file_path) ? dispatch(setSelected(null)) : dispatch(setSelected(img))}
-                  className={`w-full rounded-md flex flex-col justify-between ${isSelected(file_name, file_path) ? "border-(--main-primary) border-2" : "border-(--text-secondary-light) border"}`}
+                  className={`w-full rounded-md flex cursor-pointer flex-col justify-between ${isSelected(file_name, file_path) ? "border-(--main-primary) border-2" : "border-(--text-secondary-light) border"}`}
                 >
                   <img
                     src={convertFileSrc(file_path)}
@@ -38,7 +38,7 @@ const Home = () => {
                     className="w-full"
                   />
                   <div className="w-full px-3 py-2 font-medium">
-                    <p className="text-base">{file_name}</p>
+                    <p className="text-base break-words">{file_name}</p>
                     <p className="text-lg text-(--text-primary-light)">
                       {formatFileSize(file_size)}
                     </p>

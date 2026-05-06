@@ -60,7 +60,7 @@ pub fn decode(image_path: PathBuf) -> Result<String, String> {
     let magic_lsb = get_lsb(img_bytes[..magic_len].to_vec());
 
     if convert_bytes_to_str(magic_lsb)? != "MAXSTEG".to_string() {
-        return Err("unrecognised encoding".to_string());
+        return Err("Unrecognised encoding".to_string());
     };
 
     let message_length_lsb = get_lsb(img_bytes[magic_len..magic_len + 32].to_vec());

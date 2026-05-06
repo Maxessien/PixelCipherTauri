@@ -42,9 +42,11 @@ const useEncodeImage = (
   mutationOptions?: UseMutationOptions<string, Error, EncodeMutation, unknown>,
 ) => {
   const mutation = useMutation<string, Error, EncodeMutation, unknown>({
-    mutationFn: ({ path, message }) => encodeImage(path, message),
+    mutationFn: ({ path, message, save_name }) => encodeImage(path, message, save_name),
     onSuccess: () => toast.success("Encode Complete"),
-    onError: () => toast.success("Encode Failed, Try again later"),
+    onError: (e) => {
+      toast.success(e.message)
+    },
     ...mutationOptions,
   });
 
@@ -60,13 +62,14 @@ const useDecodeImage = ()=>{
       setDecoded(data)
       toast.success("Message decoded")
     },
-    onError: ()=>{
+    onError: (e)=>{
       setDecoded("")
-      toast.error("Couldn't decode message, try again later")
+      toast.error(e.message)
     }
   })
 
   return {mutation, decoded}
 }
 
-export { useEncodeImage, useGetImages, useDecodeImage };
+export { useDecodeImage, useEncodeImage, useGetImages };
+

@@ -14,7 +14,7 @@ const NavItems = ({
   return (
     <NavLink
       className={({ isActive }) =>
-        `md:w-full w-max text-center p-3 text-lg font-medium flex justify-center items-center gap-2 rounded-full md:px-3 md:py-2 md:rounded-md ${isActive ? "bg-(--main-primary)" : ""} hover:bg-(--main-secondary-light)`
+        `md:w-full w-max text-center p-3 text-lg font-medium flex justify-center items-center gap-2 rounded-full md:px-3 md:py-2 md:rounded-md ${isActive ? "bg-(--main-primary) hover:bg-(--main-primary-light)" : "hover:bg-(--main-secondary-light)"}`
       }
       to={location}
     >

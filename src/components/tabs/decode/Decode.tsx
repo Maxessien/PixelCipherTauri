@@ -16,7 +16,7 @@ const Decode = () => {
   const copyToCb = async (text: string) => {
     try {
       await window.navigator.clipboard.writeText(text);
-      setCopyText("copied");
+      setCopyText("Copied");
       setTimeout(() => {
         setCopyText("Copy Text");
       }, 2000);
@@ -39,7 +39,7 @@ const Decode = () => {
           {decoded}
         </p>
         <Button
-          attrs={{ onClick: () => copyToCb }}
+          attrs={{ onClick: () => copyToCb(decoded) }}
           color="secondary"
           width="w-full"
           rounded="rounded-md"
