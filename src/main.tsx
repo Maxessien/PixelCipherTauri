@@ -9,6 +9,7 @@ import Encode from "./components/tabs/encode/Encode";
 import Home from "./components/tabs/home/Home";
 import Settings from "./components/tabs/settings/Settings";
 import { store } from "./store";
+import History from "./components/tabs/history/History";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: "encode", element: <Encode /> },
       { path: "decode", element: <Decode /> },
       { path: "settings", element: <Settings /> },
+      { path: "history", element: <History /> },
     ],
   },
 ]);

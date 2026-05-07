@@ -4,7 +4,10 @@ import { Outlet, useNavigation } from "react-router";
 import "./App.css";
 import AppLayout from "./components/layouts/AppLayout";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { setAppState } from "./store/slices/appSlice";
+import { setAppState, setSettings } from "./store/slices/appSlice";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir } from "@tauri-apps/api/path";
+import { AppSettings } from "./types";
 
 const AppLoader = () => {
   const { isNavigating } = useAppSelector((state) => state.app);
@@ -55,6 +58,16 @@ function App() {
         break;
     }
   }, [navigation.state]);
+
+  useEffect(() => {
+    (async () => {
+      const dir = await appDataDir();
+      const url = convertFileSrc(dir);
+      const res = fetch(url);
+      const settings: AppSettings = await (await res).json();
+      dispatch(setSettings(settings));
+    })();
+  }, []);
 
   return (
     <>

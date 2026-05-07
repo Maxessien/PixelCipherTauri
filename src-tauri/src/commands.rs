@@ -5,7 +5,7 @@ use std::{io::Error, os::windows::fs::MetadataExt, path::PathBuf, time::SystemTi
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, PickerMode};
 use crate::engine;
-use tokio::sync::oneshot;
+use tokio::{fs::File, io::AsyncWriteExt, sync::oneshot};
 
 
 #[tauri::command]
@@ -123,4 +123,18 @@ pub async fn list_images(app: tauri::AppHandle) -> Result<Vec<Images>, String> {
         };
     }
     Ok(images)
+}
+
+#[tauri::command]
+pub async fn save_settings(app: tauri::AppHandle, settings: String)-> Result<(), String>{
+    let path = match app.path().app_data_dir() {
+        Ok(p)=> p,
+        Err(_)=> return Err("Couldn't resolve app data dir".to_string())
+    };
+    let mut file = match File::open(path).await {
+        Ok(f)=> f,
+        Err(_)=> return Err("Couldn't open settings file".to_string())
+    };
+    let _ = file.write_all(settings.as_bytes()).await;
+    Ok(())
 }

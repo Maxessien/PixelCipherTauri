@@ -25,3 +25,17 @@ export interface ImagesState {
   search: string;
   selected: Image | null;
 }
+
+export interface AppSettings {
+  theme: "dark" | "light" | "system";
+  saveEncodingHistory: boolean;
+  autoCopyDecoded: boolean;
+  language: string;
+  confirmBeforeClearing: boolean;
+}
+
+export interface AppSlice {
+  isNavigating: boolean;
+  isDark: boolean;
+  settings: AppSettings;
+}

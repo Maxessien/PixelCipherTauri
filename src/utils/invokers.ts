@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { Image } from "../types";
+import { AppSettings, Image } from "../types";
 
 const handleAsync = async <T>(
   callback: () => Promise<T>,
@@ -19,13 +19,17 @@ const getImageList = () =>
 
 const encodeImage = (path: string, message: string, saveName: string) =>
   handleAsync(
-    async () => await invoke<string>("encode_image", { path, message, saveName }),
+    async () =>
+      await invoke<string>("encode_image", { path, message, saveName }),
   );
 
 const decodeImage = (path: string) =>
+  handleAsync(async () => await invoke<string>("decode_image", { path }));
+
+const saveSettings = (settings: AppSettings) =>
   handleAsync(
-    async () => await invoke<string>("decode_image", { path }),
+    async () =>
+      await invoke("save_settings", { settings: JSON.stringify(settings) }),
   );
 
-export { decodeImage, encodeImage, getImageList, handleAsync };
-
+export { decodeImage, encodeImage, getImageList, handleAsync, saveSettings };
