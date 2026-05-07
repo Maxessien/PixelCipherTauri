@@ -1,4 +1,5 @@
-import { FaRecycle, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { FaArrowsRotate } from "react-icons/fa6";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setSearchQuery, setSort } from "../../../store/slices/imagesSlice";
 import { ImagesSort } from "../../../types";
@@ -15,7 +16,7 @@ const HomeHeader = ({refreshFn}: {refreshFn: ()=> void}) => {
         </h2>
         <Button attrs={{onClick: refreshFn}}>
           <span className="mr-2">
-            <FaRecycle />
+            <FaArrowsRotate />
           </span>
           Refresh
         </Button>

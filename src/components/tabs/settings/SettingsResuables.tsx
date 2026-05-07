@@ -38,13 +38,13 @@ const ToggleItem = ({
       <button
         onClick={editVal}
         style={{
-          background: value ? "var(--main-primary)" : "text-secondary-light",
+          background: value ? "var(--main-primary)" : "var(--text-secondary-light)",
         }}
-        className="w-5 h-3 rounded-full relative"
+        className="w-9 h-6 rounded-full relative"
       >
         <span
           style={{ left: value ? "50%" : "0%" }}
-          className="w-1/2 h-full bg-(--text-primary) absolute top-0"
+          className="h-full aspect-square rounded-full bg-(--text-primary) absolute top-0"
         ></span>
       </button>
     </Card>

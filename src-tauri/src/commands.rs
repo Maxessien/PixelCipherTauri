@@ -5,7 +5,11 @@ use serde::Serialize;
 use std::{io::Error, os::windows::fs::MetadataExt, path::PathBuf, time::SystemTime};
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, PickerMode};
-use tokio::{fs::File, io::AsyncWriteExt, sync::oneshot};
+use tokio::{
+    fs::{create_dir_all, File},
+    io::{AsyncReadExt, AsyncWriteExt},
+    sync::oneshot,
+};
 
 #[tauri::command]
 pub async fn encode_image(
@@ -129,25 +133,55 @@ pub async fn list_images(app: tauri::AppHandle) -> Result<Vec<Images>, String> {
     Ok(images)
 }
 
-#[tauri::command]
-pub async fn save_settings(app: tauri::AppHandle, settings: String) -> Result<(), String> {
+async fn get_settings_path(app: &tauri::AppHandle) -> Result<(PathBuf, bool), String> {
+    let mut was_created = false;
     let path = match app.path().app_data_dir() {
         Ok(p) => p,
         Err(_) => return Err("Couldn't resolve app data dir".to_string()),
     };
     let settings_path = path.join("settings.json");
-    let mut file: File;
-    if !path.exists() {
-        file = match File::create_new(&settings_path).await {
-            Ok(f) => f,
-            Err(_) => return Err("Couldn't create settings file".to_string()),
+    if !settings_path.exists() {
+        match create_dir_all(&path).await {
+            Ok(_) => {}
+            Err(_) => return Err("Couldn't create settings path".to_string()),
         };
-    } else {
-        file = match File::open(settings_path).await {
-            Ok(f) => f,
-            Err(_) => return Err("Couldn't open settings file".to_string()),
-        };
+        let _ = File::create_new(&settings_path).await;
+        was_created = true;
+    }
+    Ok((settings_path, was_created))
+}
+
+#[tauri::command]
+pub async fn save_settings(app: tauri::AppHandle, settings: String) -> Result<(), String> {
+    let settings_path = get_settings_path(&app).await?;
+    let mut file: File = match File::open(settings_path.0).await {
+        Ok(f) => f,
+        Err(_) => return Err("Couldn't open settings file".to_string()),
     };
     let _ = file.write_all(settings.as_bytes()).await;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_settings(
+    app: tauri::AppHandle,
+    default_settings: String,
+) -> Result<String, String> {
+    let (settings_path, was_created) = get_settings_path(&app).await?;
+    let mut settings = default_settings;
+    match File::open(settings_path).await {
+        Ok(mut f) => {
+            if was_created {
+                match f.write_all(settings.as_bytes()).await {
+                    Ok(_) => {}
+                    Err(_) => return Err("Couldn't write to settings file".to_string()),
+                };
+            } else {
+                let _ = f.read_to_string(&mut settings).await;
+            };
+        }
+        Err(_) => return Err("Couldn't open settings file".to_string()),
+    };
+
+    Ok(settings)
 }

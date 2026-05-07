@@ -19,7 +19,7 @@ const Settings = () => {
       </h2>
 
       <SettingsSection title="Behaviour and Appearance">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           <ToggleItem
             editVal={() =>
               dispatch(
@@ -32,7 +32,7 @@ const Settings = () => {
           />
           <Card extraClassNames="space-y-2">
             <p className="text-base md:text-lg font-medium">Theme</p>
-            <div>
+            <div className="flex w-full rounded-md border-2 border-(--text-secondary)">
               <button
                 onClick={() =>
                   dispatch(setSettings({ ...settings, theme: "dark" }))
@@ -66,7 +66,7 @@ const Settings = () => {
               onChange={(e) =>
                 dispatch(setSettings({ ...settings, language: e.target.value }))
               }
-              className="w-full px-3 py-2 rounded-md border-(--text-primary-light) border-2 text-base font-medium"
+              className="w-full px-3 bg-(--main-tertiary-light) py-2 rounded-md shadow-[inset_0px_0px_10px_-5px_var(--text-primary-light)] text-base font-medium"
               name="lang"
               id="lang_select"
             >

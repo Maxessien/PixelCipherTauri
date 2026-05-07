@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { AppSettings, Image } from "../types";
+import { defaultSettings } from "./regHepers";
 
 const handleAsync = async <T>(
   callback: () => Promise<T>,
@@ -32,4 +33,16 @@ const saveSettings = (settings: AppSettings) =>
       await invoke("save_settings", { settings: JSON.stringify(settings) }),
   );
 
-export { decodeImage, encodeImage, getImageList, handleAsync, saveSettings };
+const getSettings = () =>
+  handleAsync(
+    async () => await invoke<string>("get_settings", { defaultSettings: JSON.stringify(defaultSettings) }),
+  );
+
+export {
+  decodeImage,
+  encodeImage,
+  getImageList,
+  handleAsync,
+  saveSettings,
+  getSettings,
+};
