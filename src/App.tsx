@@ -1,12 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
-import { Route, Routes, useNavigation, Outlet } from "react-router";
+import { Outlet, useNavigation } from "react-router";
 import "./App.css";
 import AppLayout from "./components/layouts/AppLayout";
-import Decode from "./components/tabs/decode/Decode";
-import Encode from "./components/tabs/encode/Encode";
-import Home from "./components/tabs/home/Home";
-import Settings from "./components/tabs/settings/Settings";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setAppState } from "./store/slices/appSlice";
 
@@ -64,7 +60,7 @@ function App() {
     <>
       <AppLoader />
       <AppLayout>
-	<Outlet />
+        <Outlet />
       </AppLayout>
     </>
   );

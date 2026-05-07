@@ -27,4 +27,5 @@ jwalk = "0.8.1"
 tauri-plugin-android-fs = "28.1.0"
 tauri-plugin-dialog = "2.7.0"
 tokio = "1.52.1"
+sqlx = { version = "0.8.6", default-features = false, features = ["sqlite", "runtime-tokio"] }
 
