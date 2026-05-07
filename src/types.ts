@@ -28,10 +28,8 @@ export interface ImagesState {
 
 export interface AppSettings {
   theme: "dark" | "light" | "system";
-  saveEncodingHistory: boolean;
   autoCopyDecoded: boolean;
   language: string;
-  confirmBeforeClearing: boolean;
 }
 
 export interface AppSlice {

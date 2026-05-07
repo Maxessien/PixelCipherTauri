@@ -1,16 +1,25 @@
-import { FaSearch } from "react-icons/fa";
+import { FaRecycle, FaSearch } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setSearchQuery, setSort } from "../../../store/slices/imagesSlice";
 import { ImagesSort } from "../../../types";
+import Button from "../../reusable/Button";
 
-const HomeHeader = () => {
-    const {search, sort} = useAppSelector(state=>state.images)
-    const dispatch = useAppDispatch()
+const HomeHeader = ({refreshFn}: {refreshFn: ()=> void}) => {
+  const { search, sort } = useAppSelector((state) => state.images);
+  const dispatch = useAppDispatch();
   return (
     <header className="space-y-2">
-      <h2 className="text-left text-2xl font-semibold">
-        Select Image To Encode or Decode
-      </h2>
+      <div className="flex justify-between items-center gap-2 flex-wrap">
+        <h2 className="text-left text-2xl font-semibold">
+          Select Image To Encode or Decode
+        </h2>
+        <Button attrs={{onClick: refreshFn}}>
+          <span className="mr-2">
+            <FaRecycle />
+          </span>
+          Refresh
+        </Button>
+      </div>
       <div className="w-full flex gap-3 justify-between items-center">
         <div className="flex-1 relative max-w-120">
           <input
@@ -19,9 +28,7 @@ const HomeHeader = () => {
             type="text"
             className="w-full text-lg font-medium py-1 pl-9 pr-2 shadow-[inset_0px_0px_10px_-6px_var(--text-primary-light)] rounded-md"
           />
-          <button
-            className="p-2 text-base font-medium absolute -translate-y-1/2 top-1/2 left-1 sm:left-2"
-          >
+          <button className="p-2 text-base font-medium absolute -translate-y-1/2 top-1/2 left-1 sm:left-2">
             <FaSearch />
           </button>
         </div>

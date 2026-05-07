@@ -27,13 +27,10 @@ const useGetImages = (
     ...queryOptions,
   });
 
-  useEffect(() => {
-    if (query.data) dispatch(setFiles(applyFilters(query.data, search, sort)));
-  }, [search, sort]);
 
   useEffect(() => {
     if (query.data) dispatch(setFiles(applyFilters(query.data, search, sort)));
-  }, [query.data, query.errorUpdatedAt, query.dataUpdatedAt]);
+  }, [query.data, query.errorUpdatedAt, query.dataUpdatedAt, search, sort]);
 
   return query;
 };

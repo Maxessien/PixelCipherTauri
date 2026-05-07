@@ -1,3 +1,5 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir } from "@tauri-apps/api/path";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import { Outlet, useNavigation } from "react-router";
@@ -5,9 +7,8 @@ import "./App.css";
 import AppLayout from "./components/layouts/AppLayout";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setAppState, setSettings } from "./store/slices/appSlice";
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { appDataDir } from "@tauri-apps/api/path";
 import { AppSettings } from "./types";
+import { saveSettings } from "./utils/invokers";
 
 const AppLoader = () => {
   const { isNavigating } = useAppSelector((state) => state.app);
@@ -42,6 +43,7 @@ const AppLoader = () => {
 function App() {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const { settings } = useAppSelector((state) => state.app);
 
   useEffect(() => {
     switch (navigation.state) {
@@ -62,12 +64,17 @@ function App() {
   useEffect(() => {
     (async () => {
       const dir = await appDataDir();
+      console.log(dir);
       const url = convertFileSrc(dir);
       const res = fetch(url);
       const settings: AppSettings = await (await res).json();
       dispatch(setSettings(settings));
     })();
   }, []);
+
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
 
   return (
     <>

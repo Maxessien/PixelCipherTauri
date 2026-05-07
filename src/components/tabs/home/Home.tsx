@@ -8,7 +8,7 @@ import Button from "../../reusable/Button";
 import HomeHeader from "./HomeHeader";
 
 const Home = () => {
-  const { isFetching } = useGetImages();
+  const { isFetching, refetch } = useGetImages();
   const { files, selected } = useAppSelector((state) => state.images);
 
   const dispatch = useAppDispatch();
@@ -19,7 +19,7 @@ const Home = () => {
 
   return (
     <section className="space-y-3 h-full flex flex-col w-full">
-      <HomeHeader />
+      <HomeHeader refreshFn={refetch} />
       {isFetching ? (
         <p className="w-full text-3xl font-medium text-center">Loading...</p>
       ) : (
@@ -38,7 +38,7 @@ const Home = () => {
                     className="w-full"
                   />
                   <div className="w-full px-3 py-2 font-medium">
-                    <p className="text-base break-words">{file_name}</p>
+                    <p className="text-base wrap-break-word">{file_name}</p>
                     <p className="text-lg text-(--text-primary-light)">
                       {formatFileSize(file_size)}
                     </p>

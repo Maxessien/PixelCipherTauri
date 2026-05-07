@@ -4,6 +4,8 @@ import { useAppSelector } from "../../../store/hooks";
 import Button from "../../reusable/Button";
 import { Card } from "../encode/Encode";
 import ImageBanner from "../encode/ImageBanner";
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router";
 
 const Decode = () => {
   const {
@@ -24,12 +26,22 @@ const Decode = () => {
       console.log("Error copying text", err);
     }
   };
+  
+  const navigate = useNavigate();
 
   return (
     <section className="w-full space-y-3">
-      <h2 className="font-semibold text-2xl w-full text-left">
-        Encode Selected Image
+      <h2 className="font-semibold hidden md:block text-2xl w-full text-left">
+        Decode Selected Image
       </h2>
+      <div className="w-full flex items-center gap-2 flex-wrap md:hidden">
+        <button onClick={() => navigate("/")} className="text-lg font-semibold">
+          <FaArrowLeft />
+        </button>
+        <h2 className="font-semibold text-2xl w-full flex-1 text-center">
+          Decode
+        </h2>
+      </div>
       <Card>
         <ImageBanner />
       </Card>
@@ -56,7 +68,7 @@ const Decode = () => {
           },
         }}
         width="w-full"
-          rounded="rounded-md"
+        rounded="rounded-md"
       >
         {isPending ? "Decoding..." : "Decode Image"}
       </Button>

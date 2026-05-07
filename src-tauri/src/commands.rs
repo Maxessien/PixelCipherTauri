@@ -1,19 +1,18 @@
+use crate::engine;
 use image::{image_dimensions, save_buffer_with_format, ExtendedColorType, ImageFormat};
 use jwalk::WalkDir;
 use serde::Serialize;
 use std::{io::Error, os::windows::fs::MetadataExt, path::PathBuf, time::SystemTime};
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, PickerMode};
-use crate::engine;
 use tokio::{fs::File, io::AsyncWriteExt, sync::oneshot};
-
 
 #[tauri::command]
 pub async fn encode_image(
     app: tauri::AppHandle,
     path: PathBuf,
     message: String,
-    save_name: String
+    save_name: String,
 ) -> Result<String, String> {
     let img_buf = engine::encode(&path, message)?;
     let (width, height) = match image_dimensions(&path) {
@@ -21,29 +20,34 @@ pub async fn encode_image(
         Err(_) => return Err("Failed to get image dimensions".to_string()),
     };
     let (tx, rx) = oneshot::channel();
-    app.dialog().file().add_filter("Image File", IMAGE_EXTS).set_file_name(save_name).set_picker_mode(PickerMode::Image).save_file(move |f| {
-        let result = match f {
-            Some(p) => match p.into_path() {
-                Ok(file_path) => {
-                    match save_buffer_with_format(
-                        file_path,
-                        &img_buf[..],
-                        width,
-                        height,
-                        ExtendedColorType::Rgb8,
-                        ImageFormat::Png,
-                    ) {
-                        Ok(_) => Ok("File saved".to_string()),
-                        Err(_) => Err("Failed to save image format to disk".to_string()),
+    app.dialog()
+        .file()
+        .add_filter("Image File", IMAGE_EXTS)
+        .set_file_name(save_name)
+        .set_picker_mode(PickerMode::Image)
+        .save_file(move |f| {
+            let result = match f {
+                Some(p) => match p.into_path() {
+                    Ok(file_path) => {
+                        match save_buffer_with_format(
+                            file_path,
+                            &img_buf[..],
+                            width,
+                            height,
+                            ExtendedColorType::Rgb8,
+                            ImageFormat::Png,
+                        ) {
+                            Ok(_) => Ok("File saved".to_string()),
+                            Err(_) => Err("Failed to save image format to disk".to_string()),
+                        }
                     }
+                    Err(_) => Err("Invalid file path selected".to_string()),
                 },
-                Err(_) => Err("Invalid file path selected".to_string()),
-            },
-            None => Err("User cancelled file selection".to_string()),
-        };
+                None => Err("User cancelled file selection".to_string()),
+            };
 
-        let _ = tx.send(result);
-    });
+            let _ = tx.send(result);
+        });
     match rx.await {
         Ok(dialog_result) => dialog_result,
         Err(_) => Err("Internal channel error waiting for dialog".to_string()),
@@ -51,7 +55,7 @@ pub async fn encode_image(
 }
 
 #[tauri::command]
-pub async fn decode_image(path: PathBuf)-> Result<String, String>{
+pub async fn decode_image(path: PathBuf) -> Result<String, String> {
     let message = engine::decode(path)?;
     Ok(message)
 }
@@ -83,7 +87,7 @@ pub struct Images {
     pub file_name: String,
     pub file_path: PathBuf,
     pub file_size: u64,
-    pub last_modified: SystemTime
+    pub last_modified: SystemTime,
 }
 
 fn walkdir(path: PathBuf) -> Result<Vec<Images>, Error> {
@@ -102,7 +106,7 @@ fn walkdir(path: PathBuf) -> Result<Vec<Images>, Error> {
                         file_name: entry.file_name.to_string_lossy().into_owned(),
                         file_path: entry.path(),
                         file_size: entry.metadata()?.file_size(),
-                        last_modified: entry.metadata()?.modified()?
+                        last_modified: entry.metadata()?.modified()?,
                     };
                     images.push(image);
                 };
@@ -126,14 +130,23 @@ pub async fn list_images(app: tauri::AppHandle) -> Result<Vec<Images>, String> {
 }
 
 #[tauri::command]
-pub async fn save_settings(app: tauri::AppHandle, settings: String)-> Result<(), String>{
+pub async fn save_settings(app: tauri::AppHandle, settings: String) -> Result<(), String> {
     let path = match app.path().app_data_dir() {
-        Ok(p)=> p,
-        Err(_)=> return Err("Couldn't resolve app data dir".to_string())
+        Ok(p) => p,
+        Err(_) => return Err("Couldn't resolve app data dir".to_string()),
     };
-    let mut file = match File::open(path).await {
-        Ok(f)=> f,
-        Err(_)=> return Err("Couldn't open settings file".to_string())
+    let settings_path = path.join("settings.json");
+    let mut file: File;
+    if !path.exists() {
+        file = match File::create_new(&settings_path).await {
+            Ok(f) => f,
+            Err(_) => return Err("Couldn't create settings file".to_string()),
+        };
+    } else {
+        file = match File::open(settings_path).await {
+            Ok(f) => f,
+            Err(_) => return Err("Couldn't open settings file".to_string()),
+        };
     };
     let _ = file.write_all(settings.as_bytes()).await;
     Ok(())
