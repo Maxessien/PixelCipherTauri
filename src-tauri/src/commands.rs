@@ -188,36 +188,3 @@ pub async fn get_settings(
 
     Ok(settings)
 }
-
-#[cfg(target_os = "android")]
-fn req_per(app: &tauri::AppHandle) -> Result<(), String> {
-    use tauri_plugin_android_fs::AndroidFsExt;
-    let mut is_granted: bool;
-    match app.android_fs().public_storage().check_permission() {
-        Ok(g)=> is_granted = g,
-        Err(_)=> return Err("Couldn't check permissions".to_string())
-    };
-
-    if !is_granted {
-        match app.android_fs().public_storage().request_permission() {
-            Ok(g)=> is_granted = g,
-            Err(_)=> return Err("Couldn't req permissions".to_string())
-        }
-    };
-
-    if !is_granted {
-        app.exit(1);
-    };
-    Ok(())
-}
-
-#[cfg(not(target_os = "android"))]
-fn req_per(_app: &tauri::AppHandle) -> Result<(), String> {
-    Ok(())
-}
-
-#[tauri::command]
-pub async fn req_android_permissions(app: tauri::AppHandle) -> Result<(), String> {
-    req_per(&app)?;
-    Ok(())
-}

@@ -27,11 +27,13 @@ const encodeImage = (path: string, message: string, saveName: string) =>
 const decodeImage = (path: string) =>
   handleAsync(async () => await invoke<string>("decode_image", { path }));
 
-const saveSettings = (settings: AppSettings) =>
-  handleAsync(
-    async () =>
-      await invoke("save_settings", { settings: JSON.stringify(settings) }),
-  );
+const saveSettings = async(settings: AppSettings) => {
+  try {
+    await invoke("save_settings", { settings: JSON.stringify(settings) })
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 const getSettings = () =>
   handleAsync(
@@ -41,8 +43,7 @@ const getSettings = () =>
 export {
   decodeImage,
   encodeImage,
-  getImageList,
-  handleAsync,
-  saveSettings,
-  getSettings,
+  getImageList, getSettings, handleAsync,
+  saveSettings
 };
+

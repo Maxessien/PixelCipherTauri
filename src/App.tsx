@@ -6,7 +6,6 @@ import AppLayout from "./components/layouts/AppLayout";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setAppState, setSettings } from "./store/slices/appSlice";
 import { getSettings, saveSettings } from "./utils/invokers";
-import { invoke } from "@tauri-apps/api/core";
 
 const AppLoader = () => {
   const { isNavigating } = useAppSelector((state) => state.app);
@@ -59,19 +58,22 @@ function App() {
     }
   }, [navigation.state]);
 
-  const settingsInit = useRef(false)
+  const settingsInit = useRef(false);
 
   useEffect(() => {
     (async () => {
-      await invoke("req_android_permissions")
-      const sett = await getSettings();
-      dispatch(setSettings(JSON.parse(sett)));
-      settingsInit.current = true
+      try {
+        const sett = await getSettings();
+        dispatch(setSettings(JSON.parse(sett)));
+        settingsInit.current = true;
+      } catch (err) {
+        console.log(err);
+      }
     })();
   }, []);
 
   useEffect(() => {
-    if (!settingsInit.current) return
+    if (!settingsInit.current) return;
     saveSettings(settings);
   }, [settings]);
 

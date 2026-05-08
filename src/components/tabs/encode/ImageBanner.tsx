@@ -11,7 +11,7 @@ const ImageBanner = () => {
   return (
     <div className="md:grid md:grid-cols-[35%_65%] gap-3 space-y-3">
       <div
-        className={`w-full overflow-hidden h-max max-h-130 rounded-md ${!selected?.file_path ? "border-2 border-(--main-primary)" : ""} max-w-lg md:mx-0 mx-auto`}
+        className={`w-full aspect-square overflow-hidden h-max max-h-130 rounded-md ${!selected?.file_path ? "border-2 border-(--main-primary)" : ""} max-w-lg md:mx-0 mx-auto`}
       >
         {selected?.file_path && (
           <img

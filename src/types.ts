@@ -24,6 +24,7 @@ export interface ImagesState {
   sort: ImagesSort;
   search: string;
   selected: Image | null;
+  pages: {current: number, total: number}
 }
 
 export interface AppSettings {

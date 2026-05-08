@@ -5,7 +5,8 @@ const initialState: ImagesState = {
     files: [],
     search: "",
     selected: null,
-    sort: "alpha"
+    sort: "alpha",
+    pages: {current: 1, total: 1}
 }
 
 const imageSlice = createSlice({
@@ -13,7 +14,8 @@ const imageSlice = createSlice({
     name: "images",
     reducers: {
         setFiles: (state, {payload}: PayloadAction<Image[]>)=>{
-            state.files = payload
+            state.files = payload.slice(0, 30)
+            state.pages = {current: 1, total: 30}
         },
         setSelected: (state, {payload}: PayloadAction<Image | null>)=>{
             state.selected = payload
@@ -24,10 +26,15 @@ const imageSlice = createSlice({
         setSort: (state, {payload}: PayloadAction<ImagesSort>)=>{
             state.sort = payload
         },
+        setPage: (state, {payload}: PayloadAction<{current: number, total: number, data: Image[]}>)=>{
+            state.pages = payload
+            const newF = payload.data.slice((payload.current - 1) * 30, payload.current * 30)
+            state.files = newF
+        }
     }
 })
 
 const imagesReducer = imageSlice.reducer
 
-export const {setFiles, setSearchQuery, setSelected, setSort} = imageSlice.actions
+export const {setFiles, setSearchQuery, setSelected, setSort, setPage} = imageSlice.actions
 export default imagesReducer

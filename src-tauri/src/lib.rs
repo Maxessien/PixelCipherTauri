@@ -12,8 +12,7 @@ pub fn run() {
             commands::list_images,
             commands::decode_image,
             commands::save_settings,
-            commands::get_settings,
-            commands::req_android_permissions
+            commands::get_settings
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
