@@ -29,7 +29,6 @@ const AppNavigationDeskTop = () => {
     <aside className="w-full h-full hidden md:block border-r-2 border-r-(--main-primary) bg-(--main-secondary)">
       <nav className="flex flex-col gap-3 w-full justify-start px-2 py-4">
         <NavItems icon={<FaImage />} location="/" text="Images" />
-        <NavItems icon={<FaClock />} location="/history" text="History" />
         <NavItems icon={<FaCog />} location="/settings" text="Settings" />
       </nav>
     </aside>
@@ -41,7 +40,6 @@ const AppNavigationMobile = () => {
     <aside className="w-full rounded-full md:hidden bg-(--main-secondary)">
       <nav className="flex gap-2 w-full justify-between items-center px-3 sm:px-4 py-3">
         <NavItems icon={<FaImage />} location="/" text="Images" />
-        <NavItems icon={<FaClock />} location="/history" text="History" />
         <NavItems icon={<FaCog />} location="/settings" text="Settings" />
       </nav>
     </aside>

@@ -9,7 +9,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
       <AppHeader />
       <main className="md:grid h-[calc(100vh-77px)] md:grid-cols-[25%_75%]">
         <AppNavigationDeskTop />
-        <section className="w-full h-full min-h-0 flex px-3 lg:px-4 pt-5 pb-3 flex-col">
+        <section className="w-full h-full max-w-7xl mx-auto min-h-0 flex px-3 lg:px-4 pt-5 pb-3 flex-col">
           <div className="flex-1 w-full h-full px-1 overflow-y-auto">{children}</div>
           <AppNavigationMobile />
         </section>

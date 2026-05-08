@@ -2,12 +2,12 @@ use crate::engine;
 use image::{image_dimensions, save_buffer_with_format, ExtendedColorType, ImageFormat};
 use jwalk::WalkDir;
 use serde::Serialize;
-use std::{io::Error, os::windows::fs::MetadataExt, path::PathBuf, time::SystemTime};
+use std::{io::Error, path::PathBuf, time::SystemTime};
 use tauri::Manager;
 use tauri_plugin_dialog::{DialogExt, PickerMode};
 use tokio::{
-    fs::{create_dir_all, File},
-    io::{AsyncReadExt, AsyncWriteExt},
+    fs::{create_dir_all, write, File},
+    io::AsyncReadExt,
     sync::oneshot,
 };
 
@@ -109,7 +109,7 @@ fn walkdir(path: PathBuf) -> Result<Vec<Images>, Error> {
                     let image = Images {
                         file_name: entry.file_name.to_string_lossy().into_owned(),
                         file_path: entry.path(),
-                        file_size: entry.metadata()?.file_size(),
+                        file_size: entry.metadata()?.len(),
                         last_modified: entry.metadata()?.modified()?,
                     };
                     images.push(image);
@@ -154,11 +154,11 @@ async fn get_settings_path(app: &tauri::AppHandle) -> Result<(PathBuf, bool), St
 #[tauri::command]
 pub async fn save_settings(app: tauri::AppHandle, settings: String) -> Result<(), String> {
     let settings_path = get_settings_path(&app).await?;
-    let mut file: File = match File::open(settings_path.0).await {
-        Ok(f) => f,
-        Err(_) => return Err("Couldn't open settings file".to_string()),
+
+    match write(settings_path.0, settings.as_bytes()).await {
+        Ok(_) => {}
+        Err(_) => return Err("Couldn't write to settings file".to_string()),
     };
-    let _ = file.write_all(settings.as_bytes()).await;
     Ok(())
 }
 
@@ -168,20 +168,56 @@ pub async fn get_settings(
     default_settings: String,
 ) -> Result<String, String> {
     let (settings_path, was_created) = get_settings_path(&app).await?;
-    let mut settings = default_settings;
-    match File::open(settings_path).await {
-        Ok(mut f) => {
-            if was_created {
-                match f.write_all(settings.as_bytes()).await {
-                    Ok(_) => {}
-                    Err(_) => return Err("Couldn't write to settings file".to_string()),
-                };
-            } else {
+    let mut settings = String::new();
+
+    if was_created {
+        match write(settings_path, default_settings.as_bytes()).await {
+            Ok(_) => {
+                settings = default_settings;
+            }
+            Err(_) => return Err("Couldn't write to settings file".to_string()),
+        };
+    } else {
+        match File::open(settings_path).await {
+            Ok(mut f) => {
                 let _ = f.read_to_string(&mut settings).await;
-            };
-        }
-        Err(_) => return Err("Couldn't open settings file".to_string()),
+            }
+            Err(_) => return Err("Couldn't read settings file".to_string()),
+        };
     };
 
     Ok(settings)
+}
+
+#[cfg(target_os = "android")]
+fn req_per(app: &tauri::AppHandle) -> Result<(), String> {
+    use tauri_plugin_android_fs::AndroidFsExt;
+    let mut is_granted: bool;
+    match app.android_fs().public_storage().check_permission() {
+        Ok(g)=> is_granted = g,
+        Err(_)=> return Err("Couldn't check permissions".to_string())
+    };
+
+    if !is_granted {
+        match app.android_fs().public_storage().request_permission() {
+            Ok(g)=> is_granted = g,
+            Err(_)=> return Err("Couldn't req permissions".to_string())
+        }
+    };
+
+    if !is_granted {
+        app.exit(1);
+    };
+    Ok(())
+}
+
+#[cfg(not(target_os = "android"))]
+fn req_per(_app: &tauri::AppHandle) -> Result<(), String> {
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn req_android_permissions(app: tauri::AppHandle) -> Result<(), String> {
+    req_per(&app)?;
+    Ok(())
 }

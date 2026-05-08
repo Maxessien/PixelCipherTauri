@@ -11,7 +11,7 @@ const HomeHeader = ({refreshFn}: {refreshFn: ()=> void}) => {
   return (
     <header className="space-y-2">
       <div className="flex justify-between items-center gap-2 flex-wrap">
-        <h2 className="text-left text-2xl font-semibold">
+        <h2 className="text-left text-xl sm:text-2xl font-semibold">
           Select Image To Encode or Decode
         </h2>
         <Button attrs={{onClick: refreshFn}}>
@@ -21,8 +21,8 @@ const HomeHeader = ({refreshFn}: {refreshFn: ()=> void}) => {
           Refresh
         </Button>
       </div>
-      <div className="w-full flex gap-3 justify-between items-center">
-        <div className="flex-1 relative max-w-120">
+      <div className="w-full flex gap-3 flex-wrap justify-between items-center">
+        <div className="flex-1 min-w-60 relative max-w-120">
           <input
             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
             value={search}

@@ -5,14 +5,15 @@ pub mod engine;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_android_fs::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_android_fs::init())
         .invoke_handler(tauri::generate_handler![
             commands::encode_image,
             commands::list_images,
             commands::decode_image,
             commands::save_settings,
-            commands::get_settings
+            commands::get_settings,
+            commands::req_android_permissions
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
