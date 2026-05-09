@@ -78,6 +78,23 @@ function App() {
     saveSettings(settings);
   }, [settings]);
 
+  useEffect(()=>{
+    switch (settings.theme) {
+      case "dark":
+        document.body.setAttribute("data-theme", "dark")
+        break;
+      case "light":
+        document.body.setAttribute("data-theme", "light")
+        break;
+      case "system":
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.setAttribute("data-theme", isDarkMode ? "dark" : "light")
+        break;
+      default:
+        break;
+    }
+  }, [settings.theme])
+
   return (
     <>
       <AppLoader />

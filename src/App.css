@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+body[data-theme="dark"] {
   --main-primary: #6366f1;
   --main-primary-light: #8b5cf6; /* Purple/Blue accent matching the active app sections */
   --main-primary-lighter: #a855f7;
@@ -15,6 +15,20 @@
   --text-secondary-light: #64748b;
 }
 
+body[data-theme="light"] {
+  --main-primary: #544cef;
+  --main-primary-light: #6366f1;
+  --main-primary-lighter: #8b5cf6;
+  --main-secondary: #f8fafc; /* Light sidebar/topbar */
+  --main-secondary-light: #ffffff; /* Main white background */
+  --main-tertiary: #f1f5f9; /* Cards, inputs, item backgrounds */
+  --main-tertiary-light: #e2e8f0; /* Borders, subtle dividers */
+  --text-primary: #0f172a; /* Near black for primary text */
+  --text-primary-light: #1e293b;
+  --text-errors: #ef4444;
+  --text-secondary: #475569; /* Cool gray for subtitles */
+  --text-secondary-light: #64748b;
+}
 
 body {
     background: var(--main-secondary-light);

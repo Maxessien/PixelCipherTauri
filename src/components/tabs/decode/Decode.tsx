@@ -1,18 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router";
 import { useDecodeImage } from "../../../hooks/fetchers";
 import { useAppSelector } from "../../../store/hooks";
 import Button from "../../reusable/Button";
 import { Card } from "../encode/Encode";
 import ImageBanner from "../encode/ImageBanner";
-import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router";
 
 const Decode = () => {
   const {
     decoded,
-    mutation: { isPending, mutateAsync },
+    mutation: { isPending, mutateAsync, status },
   } = useDecodeImage();
   const { selected } = useAppSelector((state) => state.images);
+  const {settings} = useAppSelector(state=> state.app)
   const [copyText, setCopyText] = useState("Copy Text");
 
   const copyToCb = async (text: string) => {
@@ -26,6 +27,11 @@ const Decode = () => {
       console.log("Error copying text", err);
     }
   };
+
+  useEffect(()=>{
+    if (status !== "success" || !settings.autoCopyDecoded) return
+    copyToCb(decoded)
+  }, [status])
   
   const navigate = useNavigate();
 

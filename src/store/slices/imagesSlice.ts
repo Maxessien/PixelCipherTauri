@@ -15,7 +15,7 @@ const imageSlice = createSlice({
     reducers: {
         setFiles: (state, {payload}: PayloadAction<Image[]>)=>{
             state.files = payload.slice(0, 30)
-            state.pages = {current: 1, total: 30}
+            state.pages = {current: 1, total: Math.ceil(payload.length / 30)}
         },
         setSelected: (state, {payload}: PayloadAction<Image | null>)=>{
             state.selected = payload

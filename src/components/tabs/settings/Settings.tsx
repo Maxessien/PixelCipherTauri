@@ -32,7 +32,7 @@ const Settings = () => {
           />
           <Card extraClassNames="space-y-2">
             <p className="text-base md:text-lg font-medium">Theme</p>
-            <div className="flex w-full rounded-md border-2 border-(--text-secondary)">
+            <div className="flex overflow-hidden w-full rounded-md border-2 border-(--text-secondary)">
               <button
                 onClick={() =>
                   dispatch(setSettings({ ...settings, theme: "dark" }))

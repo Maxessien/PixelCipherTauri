@@ -18,6 +18,15 @@ const Home = () => {
   const isSelected = (name: string, path: string) =>
     selected?.file_name === name && selected.file_path === path;
 
+  const showIdxs = ()=>{
+    let nums: number[] = []
+    if (pages.current < 3) nums = [1, 2, 3]
+    else if (pages.current === pages.total) nums = [pages.current, pages.current - 1, pages.current - 2]
+    else nums = [pages.current + 1, pages.current, pages.current - 1]
+
+    return nums
+  }
+
   return (
     <section className="space-y-3 h-full flex flex-col w-full">
       <HomeHeader refreshFn={refetch} />
@@ -38,9 +47,9 @@ const Home = () => {
                       ? dispatch(setSelected(null))
                       : dispatch(setSelected(img))
                   }
-                  className={`w-full rounded-md flex cursor-pointer flex-col justify-between ${isSelected(file_name, file_path) ? "border-(--main-primary) border-2" : "border-(--text-secondary-light) border"}`}
+                  className={`w-full rounded-md flex cursor-pointer flex-col justify-between ${isSelected(file_name, file_path) ? "border-(--main-primary) border-3" : "border-(--text-secondary-light) border-2"}`}
                 >
-                  <div className="w-full aspect-square overflow-hidden">
+                  <div className="w-full aspect-square rounded-[6px_6px_0px_0px] overflow-hidden">
                     <img
                     src={convertFileSrc(file_path)}
                     alt={file_name + " image"}
@@ -73,15 +82,15 @@ const Home = () => {
         >
           <FaArrowLeft />
         </Button>
-        <div className="flex-1 flex justify-start items-center gap-2 overflow-x-auto">
+        <div className="flex-1 flex justify-center items-center gap-2 overflow-x-auto">
           {Array(pages.total)
             .fill("n")
             .map((_, idx) => {
               return (
                 <Button
-                  attrs={{ onClick: () => setCurrPage(idx + 1) }}
+                  attrs={{ onClick: () => setCurrPage(idx + 1), style: {display: !showIdxs().some((val)=> val === idx + 1) ? "none" : "inline-flex"} }}
                   usePredefinedSize={false}
-                  className="text-base py-1 px-3"
+                  className={`text-base py-1 px-3`}
                   color={idx + 1 === pages.current ? "primary" : "tertiary"}
                 >
                   {idx + 1}
