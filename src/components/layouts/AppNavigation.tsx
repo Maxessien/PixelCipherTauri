@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { FaClock, FaCog, FaImage } from "react-icons/fa";
+import { FaCog, FaImage } from "react-icons/fa";
 import { NavLink } from "react-router";
 
 const NavItems = ({
