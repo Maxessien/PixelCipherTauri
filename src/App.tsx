@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { Outlet, useNavigation } from "react-router";
+import { ToastContainer } from "react-toastify";
 import "./App.css";
 import AppLayout from "./components/layouts/AppLayout";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
@@ -83,6 +84,12 @@ function App() {
       <AppLayout>
         <Outlet />
       </AppLayout>
+      <ToastContainer
+        newestOnTop
+        pauseOnHover
+        position="top-center"
+        theme="dark"
+      />
     </>
   );
 }

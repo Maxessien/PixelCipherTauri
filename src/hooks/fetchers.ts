@@ -52,9 +52,9 @@ const useEncodeImage = (
   mutationOptions?: UseMutationOptions<string, Error, EncodeMutation, unknown>,
 ) => {
   const mutation = useMutation<string, Error, EncodeMutation, unknown>({
-    mutationFn: ({ path, message, save_name }) =>
-      encodeImage(path, message, save_name),
-    onSuccess: () => toast.success("Encode Complete"),
+    mutationFn: ({ path, message, save_name, imgFormat }) =>
+      encodeImage(path, message, save_name, imgFormat),
+    onSuccess: () => toast.success("Encoding Complete"),
     onError: (e) => {
       toast.success(e.message);
     },

@@ -1,13 +1,26 @@
 use jwalk::WalkDir;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{io::Error, path::PathBuf, time::SystemTime};
 use tauri::Manager;
 use tokio::fs::{create_dir_all, File};
-#[cfg(not(target_os = "android"))]
 use tokio::sync::oneshot::Sender;
 use image::{save_buffer_with_format, ExtendedColorType, ImageFormat};
 
 pub const IMAGE_EXTS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp"];
+
+#[derive(Deserialize)]
+#[serde(rename_all="lowercase")]
+pub enum Format {
+    Jpg, Png, Webp
+}
+
+fn get_format(format: Format)-> (ImageFormat, String) {
+    match format {
+        Format::Jpg => (ImageFormat::Jpeg, "jpg".to_string()),
+        Format::Png => (ImageFormat::Png, "png".to_string()),
+        Format::Webp => (ImageFormat::WebP, "webp".to_string())
+    }
+}
 
 #[cfg(not(target_os = "android"))]
 pub fn save_image(
@@ -17,26 +30,28 @@ pub fn save_image(
     width: u32,
     height: u32,
     app: &tauri::AppHandle,
+    img_format: Format
 ) {
     use tauri_plugin_dialog::{DialogExt, PickerMode};
 
     app.dialog()
         .file()
-        .add_filter("Image File", IMAGE_EXTS)
+        .add_filter("Image File", &["png"])
         .set_file_name(save_name)
         .set_picker_mode(PickerMode::Image)
         .save_file(move |f| {
+            let (format, ext) = get_format(img_format);
             let result = match f {
                 Some(p) => match p.into_path() {
-                    Ok(file_path) => {
-
+                    Ok(mut file_path) => {
+                        file_path.set_extension(ext);
                         match save_buffer_with_format(
                             file_path,
                             &image_buf[..],
                             width,
                             height,
                             ExtendedColorType::Rgb8,
-                            ImageFormat::Png,
+                            format,
                         ) {
                             Ok(_) => Ok("File saved".to_string()),
                             Err(_) => Err("Failed to save image format to disk".to_string()),
@@ -60,15 +75,19 @@ pub fn save_image(
     width: u32,
     height: u32,
     _app: &tauri::AppHandle,
+    img_format: Format,
 ) {
     let pictures_path = PathBuf::from("/storage/emulated/0/Pictures");
+    let mut save_path = pictures_path.join(save_name);
+    let (format, ext) = get_format(img_format);
+    save_path.set_extension(ext);
     let result = match save_buffer_with_format(
-        pictures_path.join(save_name),
+        save_path,
         &image_buf[..],
         width,
         height,
         ExtendedColorType::Rgb8,
-        ImageFormat::Png,
+        format,
     ) {
         Ok(_) => Ok("File saved".to_string()),
         Err(_) => Err("Failed to save image format to disk".to_string()),

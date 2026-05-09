@@ -14,6 +14,7 @@ pub async fn encode_image(
     path: PathBuf,
     message: String,
     save_name: String,
+    img_format: util::Format
 ) -> Result<String, String> {
     let image_buf = engine::encode(&path, message)?;
     let (width, height) = match image_dimensions(&path) {
@@ -21,7 +22,7 @@ pub async fn encode_image(
         Err(_) => return Err("Failed to get image dimensions".to_string()),
     };
     let (sender, rx) = oneshot::channel();
-    util::save_image(save_name, image_buf, sender, width, height, &app);
+    util::save_image(save_name, image_buf, sender, width, height, &app, img_format);
     match rx.await {
         Ok(dialog_result) => dialog_result,
         Err(_) => Err("Internal channel error waiting for dialog".to_string()),

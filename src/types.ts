@@ -9,6 +9,7 @@ export interface EncodeMutation {
   path: string;
   message: string;
   save_name: string;
+  imgFormat: string
 }
 
 export type ImagesSort =

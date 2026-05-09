@@ -18,10 +18,10 @@ const handleAsync = async <T>(
 const getImageList = () =>
   handleAsync<Image[]>(async () => await invoke("list_images"));
 
-const encodeImage = (path: string, message: string, saveName: string) =>
+const encodeImage = (path: string, message: string, saveName: string, imgFormat: string) =>
   handleAsync(
     async () =>
-      await invoke<string>("encode_image", { path, message, saveName }),
+      await invoke<string>("encode_image", { path, message, saveName, imgFormat }),
   );
 
 const decodeImage = (path: string) =>
