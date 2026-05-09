@@ -10,13 +10,9 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : TauriActivity() {
   private val requestPermissionLauncher = registerForActivityResult(
-    ActivityResultContracts.RequestPermission()
-  ) { isGranted: Boolean ->
-    if (isGranted) {
-      // Permission granted
-    } else {
-      // Permission denied
-    }
+    ActivityResultContracts.RequestMultiplePermissions()
+  ) { permissions ->
+    // Permissions handled
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,12 +21,14 @@ class MainActivity : TauriActivity() {
     
     // Check and request permission on app launch based on Android version
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+        val perms = arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        if (perms.any { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }) {
+            requestPermissionLauncher.launch(perms)
         }
     } else {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        val perms = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (perms.any { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }) {
+            requestPermissionLauncher.launch(perms)
         }
     }
   }
